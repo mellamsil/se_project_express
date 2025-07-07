@@ -1,4 +1,10 @@
 const User = require("../models/user");
+const {
+  OK,
+  INTERNAL_SERVER_ERROR,
+  CREATED,
+  BAD_REQUEST,
+} = require("../utils/errors");
 
 // GET /users
 
@@ -7,21 +13,23 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: err.message });
+      if (err.name === "DocumentNotFoundError") {
+        // return res.status(404).send((message: "error message"));
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar } = req.body;
-
   User.create({ name, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -33,9 +41,9 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        // ... here you need a 404
+        return res.status(404).send({ message: err.message });
       } else if (err.name === "CastError") {
-        // here you need a 400
+        return res.status(400).send({ message: "Invalid data" });
       }
       return res.status(500).send({ message: err.message });
     });
