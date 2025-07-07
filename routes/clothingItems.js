@@ -16,8 +16,11 @@ router.post("/", createItem);
 //Read
 router.get("/", getItems);
 
+//Update
+router.put("/:itemId", updateItem);
+
 //Update/Like
-router.put("/:itemId/Likes", updateItem);
+// router.put("/:itemId/Likes", updateItem);
 
 //DisLike
 router.delete("/:itemId/likes", disLikeItem);

@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(routes);
-// app.use("/", mainRouter);
+app.use("/", mainRouter);
 // app.all("*", (req, res, next) => {
 //   const err = new customErr(
 //     `Can't find ${req.originalUrl} on this server!`,

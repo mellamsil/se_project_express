@@ -12,15 +12,19 @@ const clothingItems = require("../models/clothingItems");
 
 // GET /items
 const getItems = (req, res) => {
+  console.log("Check if this item was retrieved");
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(OK).send(items))
     .catch((e) => {
-      res.status(500).send({ message: "Error from getItems", e });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from getItems", e });
     });
 };
 
 // POST /items
 const createItem = (req, res) => {
+  console.log("Check if this item has been created ");
   console.log(req);
   console.log(req.body);
   const { name, weather, imageUrl } = req.body;
@@ -30,36 +34,9 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from createItem", e });
-    });
-};
-
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
-
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from updateItemss", e });
-    });
-};
-
-const deleteItem = (req, res) => {
-  const { itemId } = req.params;
-  console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => {
-      res.status(204).send({});
-    })
-    .catch((e) => {
-      console.error(err);
-      if (err.itemId === "ValidationError") {
-        return res.status(500).send({ message: "input is incorrect", err });
-      }
-      return res.status(404).send({ message: "Error from deleteItem", e });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from createItem", e });
     });
 };
 
@@ -70,17 +47,58 @@ const LikeItem = (req, res) => {
   clothingItems
     .findByIdAndUpdate(
       req.params.itemId,
-      { $addToSet: { likes: userId } },
+      { $addToSet: { likes: req.user._Id } },
       { new: true }
     )
 
-    .orFail(new error("Item not found"))
+    .orFail()
     .then((item) => {
-      res.setHeader("Content-Type", "application/json");
-      res.send({ data: item });
+      res.status(OK).send(item);
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from LikeItem", e });
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+    });
+};
+
+// PUT /items
+const updateItem = (req, res) => {
+  console.log("Check if this item was updated ");
+  const { itemId } = req.params;
+  const { imageUrl } = req.body;
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
+    .orFail()
+    .then((item) => res.status(OK).send({ data: item }))
+    .catch((e) => {
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from updateItemss", e });
+    });
+};
+
+// DELETE /items
+const deleteItem = (req, res) => {
+  console.log("Check if this item was deleted ");
+  const { itemId } = req.params;
+  console.log(itemId);
+  ClothingItem.findByIdAndDelete(itemId)
+    .orFail()
+    .then((item) => {
+      res.status(NO_CONTENT).send({});
+    })
+    .catch((e) => {
+      console.error(err);
+      if (err.itemId === "ValidationError") {
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "input is incorrect", err });
+      }
+      return res
+        .status(NOT_FOUND)
+        .send({ message: "Error from deleteItem", e });
     });
 };
 
@@ -99,7 +117,9 @@ const disLikeItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from dislikeItem", e });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from dislikeItem", e });
     });
 };
 
