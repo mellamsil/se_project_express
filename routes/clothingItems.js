@@ -3,27 +3,26 @@ const router = require("express").Router();
 const {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   disLikeItem,
   LikeItem,
 } = require("../controllers/clothingItems");
 
-//CRUD
+// CRUD
 
-//Create
+// Create
 router.post("/", createItem);
 
-//Read
+// Read
 router.get("/", getItems);
 
-//Delete
+// Delete
 router.delete("/:itemId", deleteItem);
 
 // Like an item by ID
 router.put("/:itemId/Likes", LikeItem);
 
-//DisLike an item by ID
+// DisLike an item by ID
 router.delete("/:itemId/likes", disLikeItem);
 
 module.exports = router;

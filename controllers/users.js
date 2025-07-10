@@ -21,8 +21,7 @@ const getUsers = (req, res) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  console.log("Check if a new user has been created ");
+const createUser = (req, res) => {
   const { name, avatar } = req.body;
   User.create({ name, avatar })
     .then((user) => res.status(CREATED).send(user))
@@ -46,7 +45,8 @@ const getUser = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid data" });
       }
       return res

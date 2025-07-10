@@ -1,4 +1,3 @@
-const e = require("express");
 const ClothingItem = require("../models/clothingItems");
 const {
   INTERNAL_SERVER_ERROR,
@@ -6,16 +5,15 @@ const {
   NOT_FOUND,
   OK,
   CREATED,
-  NO_CONTENT,
 } = require("../utils/errors");
 const clothingItems = require("../models/clothingItems");
 
 // GET /items
 const getItems = (req, res) => {
-  console.log("Check if this item was retrieved");
   ClothingItem.find({})
     .then((items) => res.status(OK).send(items))
-    .catch((e) => {
+    .catch((err) => {
+      console.error(err);
       res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
@@ -24,24 +22,21 @@ const getItems = (req, res) => {
 
 // POST /items
 const createItem = (req, res) => {
-  console.log("Check if this item has been created ");
-  console.log(req);
-  console.log(req.body);
   const { name, weather, imageUrl } = req.body;
-  const owner = req.user._Id;
+  const owner = req.user._id;
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => {
-      console.log(item);
       res.status(CREATED).send(item);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server" });
       }
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -51,7 +46,7 @@ const LikeItem = (req, res) => {
   clothingItems
     .findByIdAndUpdate(
       req.params.itemId,
-      { $addToSet: { likes: req.user._Id } },
+      { $addToSet: { likes: userId } },
       { new: true }
     )
     .orFail()
@@ -81,18 +76,24 @@ const disLikeItem = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     )
-    .orFail(() => {
-      const error = new Error("No item found with that id");
-      error.statusCode = 404;
-      throw error;
-    })
+    .orFail()
     .then((item) => {
       res.setHeader("Content-Type", "application/json");
       res.send({ data: item });
     })
+
     .catch((err) => {
-      console.error("Dislike Item Error:", err);
-      res
+      if (err.name === "DocumenNotFoundError") {
+        return res
+          .status(NOT_FOUND)
+          .send({ message: "No item found with that ID" });
+      }
+
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid Input" });
+      }
+
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
     });
@@ -100,24 +101,15 @@ const disLikeItem = (req, res) => {
 
 // DELETE /items
 const deleteItem = (req, res) => {
-  console.log("Check if this item was deleted ");
   const { itemId } = req.params;
-  console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
-    .orFail(() => {
-      const err = new Error("Item ID not found");
-      err.statusCode = 404;
-      throw err;
-    })
-    .then((item) => {
-      if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
-      res.status(OK).send({ message: "Item is successfully deleted" });
-    })
+    .orFail()
+    .then((item) =>
+      res.status(NOT_FOUND).send({ message: "Item not found", item })
+    )
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST);
+        return res.status(BAD_REQUEST).send({ message: "Item is deleted" });
       }
       console.error(err);
       if (err.name === "DocumentNotFoundError") {

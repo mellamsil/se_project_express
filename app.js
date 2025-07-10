@@ -1,4 +1,5 @@
 const express = require("express");
+
 const app = express();
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
@@ -8,11 +9,13 @@ const { PORT = 3001 } = process.env;
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
-    console.log("connected to DB"), (e) => console.log("DB error", e);
+    console.log("connected to DB");
   })
   .catch(console.error);
 
 const routes = require("./routes");
+const { INTERNAL_SERVER_ERROR } = require("./utils/errors");
+
 app.use(express.json());
 app.use((req, res, next) => {
   req.user = {
@@ -24,17 +27,26 @@ app.use(routes);
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-  console.log("This is working");
+  console.log(`App listening at port ${PORT}`);
 });
 
-module.exports = (error, req, res, next) => {
-  console.log("MIDDLEWARE");
-  console.error(err);
-  error.statusCode = error.statusCode || 500;
-  error.statusCode = error.status || "error";
-  res.status(error.statusCode).json({
-    STATUS: error.statusCode,
-    message: error.message,
+// module.exports = (error, req, res) => {
+//   console.error(error);
+//   error.statusCode = error.statusCode || 500;
+//   error.statusCode = error.status || "error";
+//   res.status(error.statusCode).json({
+//     STATUS: error.statusCode,
+//     message: error.message,
+//   });
+// };
+
+module.exports = (error, req, res) => {
+  console.error(error);
+
+  const statusCode = error.statusCode || error.status || INTERNAL_SERVER_ERROR;
+
+  res.status(statusCode).json({
+    STATUS: statusCode,
+    message: error.message || "Internal Server Error",
   });
 };
