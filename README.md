@@ -18,7 +18,6 @@ I've used the following technologies and techniques:
  Express.js as the web framework
  MongoDB as the NoSQL database management system
  Mongoose as the ODM (Object Data Modeling) library
- JWT (JSON Web Tokens) for user authentication and authorization
  Nodemon for hot reload during development
 
 ## Running the Project
