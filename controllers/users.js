@@ -1,6 +1,7 @@
 const user = require("../models/user");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
+
 // const bcrypt = require("bcryptjs");
 const {
   OK,
@@ -9,7 +10,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
 } = require("../utils/errors");
-// const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 // GET /users
 
@@ -85,37 +86,71 @@ const createUser = (req, res) => {
 //     });
 // };
 
-const { email, password } = req.body.email;
 // const email = req.body.email;
-User.findOne({ email })
-  .then((user) => {
-    if (user) {
-      return res
-        .status(400)
-        .send({ message: "User with this email already exists" });
-    }
 
-    // Hash the password
-    return bcrypt
-      .hash(password, 10)
-      .then((hash) => {
-        return user.create({ name, avatar, email, password: hash });
-      })
-      .then((newUser) => {
-        res.status(201).send({ data: newUser });
-      });
-  })
-  .catch((err) => {
-    console.error("createUser error name:");
-    if (err.code === 11000) {
+const getUser = (req, res) => {
+  const { email, password } = req.body.email;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        return res
+          .status(400)
+          .send({ message: "User with this email already exists" });
+      }
+
+      // Hash the password
+      return bcrypt
+        .hash(password, 10)
+        .then((hash) => {
+          return user.create({ name, avatar, email, password: hash });
+        })
+        .then((newUser) => {
+          res.status(201).send({ data: newUser });
+        });
+    })
+    .catch((err) => {
+      console.error("createUser error name:");
+      if (err.code === 11000) {
+        return res
+          .status(409)
+          .send({ message: "User with this email already exists" });
+      }
       return res
-        .status(409)
-        .send({ message: "User with this email already exists" });
-    }
-    return res
-      .status(500)
-      .send({ message: "An error has occurred on the server." });
-  });
+        .status(500)
+        .send({ message: "An error has occurred on the server." });
+    });
+};
+
+// User.findOne({ email })
+//   .then((user) => {
+//     if (user) {
+//       return res
+//         .status(400)
+//         .send({ message: "User with this email already exists" });
+//     }
+
+//     // Hash the password
+//     return bcrypt
+//       .hash(password, 10)
+//       .then((hash) => {
+//         return user.create({ name, avatar, email, password: hash });
+//       })
+//       .then((newUser) => {
+//         res.status(201).send({ data: newUser });
+//       });
+//   })
+//   .catch((err) => {
+//     console.error("createUser error name:");
+//     if (err.code === 11000) {
+//       return res
+//         .status(409)
+//         .send({ message: "User with this email already exists" });
+//     }
+//     return res
+//       .status(500)
+//       .send({ message: "An error has occurred on the server." });
+//   });
 
 const login = (req, res) => {
   const { email, password } = req.body;
@@ -155,10 +190,41 @@ const login = (req, res) => {
   //Compare the password
 };
 
-// const getCurrentUser = (req, res) => {
-//The controller should return the logged-in user data based on the _id value
-//   console.log(currentUser);
-//   return (currentUser = req._id);
-// };
+const updateUserProfile = function (req, res) {
+  const userId = req.user._id; // assumes auth middleware sets req.user
+  const { name, avatar } = req.body;
 
-module.exports = { getUsers, createUser, getUser };
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    {
+      new: true, // return the updated document
+      runValidators: true, // run schema validators
+    }
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.status(200).json(user);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res
+          .status(400)
+          .json({ message: "Invalid data", error: err.message });
+      }
+      res
+        .status(500)
+        .json({ message: "Internal server error", error: err.message });
+    });
+};
+
+module.exports = {
+  getUsers,
+  createUser,
+  getUser,
+  getCurrentUser,
+  login,
+  updateUserProfile,
+};
