@@ -5,6 +5,7 @@ const {
   NOT_FOUND,
   OK,
   CREATED,
+  FORBIDDEN,
 } = require("../utils/errors");
 const clothingItems = require("../models/clothingItems");
 
@@ -101,19 +102,37 @@ const disLikeItem = (req, res) => {
 
 // DELETE /items
 const deleteItem = (req, res) => {
+  console.log(req.params);
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+
+  ClothingItem.findById({ _id: itemId })
     .orFail()
-    .then((item) =>
-      res.status(NOT_FOUND).send({ message: "Item not found", item })
-    )
-    .catch((err) => {
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Item is deleted" });
+    .then((item) => {
+      if (!item) {
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
+      if (!item.owner.equals(req.user._id)) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "That item is not yours. You cannot delete it" });
+      }
+      return ClothingItem.findByIdAndRemove({ _id: itemId })
+        .then(() => {
+          return res.status(200).send({ message: "Item Successfully Deleted" });
+        })
+        .catch((err) => {
+          console.error(err);
+          return res
+            .status(INTERNAL_SERVER_ERROR)
+            .send({ message: "An error has occurred on the server" });
+        });
+    })
+    .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Error from deleteItem" });
+      if (err.name === "CastError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid Data. Failed to delete item" });
       }
       return res
         .status(INTERNAL_SERVER_ERROR)

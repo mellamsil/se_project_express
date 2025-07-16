@@ -1,4 +1,7 @@
+const user = require("../models/user");
 const User = require("../models/user");
+const { JWT_SECRET } = require("../utils/config");
+// const bcrypt = require("bcryptjs");
 const {
   OK,
   INTERNAL_SERVER_ERROR,
@@ -6,6 +9,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
 } = require("../utils/errors");
+// const jwt = require("jsonwebtoken");
 
 // GET /users
 
@@ -21,24 +25,9 @@ const getUsers = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
-  const { name, avatar } = req.body;
-  User.create({ name, avatar })
-    .then((user) => res.status(CREATED).send(user))
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid data" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
+const getCurrentUser = (req, res) => {
+  const { id } = req.user;
+  User.findById(id)
     .orFail()
     .then((user) => res.status(OK).send(user))
     .catch((err) => {
@@ -54,5 +43,122 @@ const getUser = (req, res) => {
         .send({ message: "An error has occurred on the server" });
     });
 };
+
+const createUser = (req, res) => {
+  const { name, avatar, email, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
+    .then((user) =>
+      res.status(CREATED).send({
+        _id: user._id,
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+      })
+    )
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data or invalid ID" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
+// const createUser = (req, res) => {
+//   const { name, avatar } = req.body;
+//   User.create({ name, avatar })
+//     .then((user) => res.status(CREATED).send(user))
+//     .catch((err) => {
+//       console.error(err);
+//       if (err.name === "ValidationError") {
+//         return res.status(BAD_REQUEST).send({ message: "Invalid data" });
+//       }
+//       return res
+//         .status(INTERNAL_SERVER_ERROR)
+//         .send({ message: "An error has occurred on the server" });
+//     });
+// };
+
+const { email, password } = req.body.email;
+// const email = req.body.email;
+User.findOne({ email })
+  .then((user) => {
+    if (user) {
+      return res
+        .status(400)
+        .send({ message: "User with this email already exists" });
+    }
+
+    // Hash the password
+    return bcrypt
+      .hash(password, 10)
+      .then((hash) => {
+        return user.create({ name, avatar, email, password: hash });
+      })
+      .then((newUser) => {
+        res.status(201).send({ data: newUser });
+      });
+  })
+  .catch((err) => {
+    console.error("createUser error name:");
+    if (err.code === 11000) {
+      return res
+        .status(409)
+        .send({ message: "User with this email already exists" });
+    }
+    return res
+      .status(500)
+      .send({ message: "An error has occurred on the server." });
+  });
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  // Find the user by credentials
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      console.log("user object from the login controller", user);
+      if (!user) {
+        return res.status(401).send({ message: "Invalid email or password " });
+      }
+
+      //Check if user ID or JWT_SECRET is undefined
+      if (!user._id || !JWT_SECRET) {
+        console.error("user._id or JWT_SECRET is undefined");
+        return res
+          .status(500)
+          .send({ message: "Internal server error from the try statement" });
+      }
+
+      // Generate JWT
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      //Send token to client
+      res.status(200).send({ token });
+    })
+    .catch((err) => {
+      console.error("Login error:", err.name);
+      res.status(500).send({
+        message:
+          "Internal server error from the catch in the login controller" + err,
+      });
+    });
+
+  //Compare the password
+};
+
+// const getCurrentUser = (req, res) => {
+//The controller should return the logged-in user data based on the _id value
+//   console.log(currentUser);
+//   return (currentUser = req._id);
+// };
 
 module.exports = { getUsers, createUser, getUser };
