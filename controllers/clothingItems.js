@@ -2,7 +2,6 @@ const ClothingItem = require("../models/clothingItems");
 const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
-  UNAUTHORIZED,
   NOT_FOUND,
   OK,
   CREATED,
