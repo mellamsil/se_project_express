@@ -2,6 +2,7 @@ const ClothingItem = require("../models/clothingItems");
 const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
+  UNAUTHORIZED,
   NOT_FOUND,
   OK,
   CREATED,
@@ -118,7 +119,7 @@ const deleteItem = (req, res) => {
       }
       return ClothingItem.findByIdAndRemove({ _id: itemId })
         .then(() => {
-          return res.status(200).send({ message: "Item Successfully Deleted" });
+          return res.status(OK).send({ message: "Item Successfully Deleted" });
         })
         .catch((err) => {
           console.error(err);
