@@ -1,40 +1,67 @@
-# WTWR (What to Wear?): Back End
+# WTWR (What to Wear?) API
 
 ## Project Description
 
-I've designed the WTWR back-end project to create a server for the WTWR application, providing a robust API and user authorization. My goal with this project is to demonstrate a deeper understanding of working with databases, setting up security and testing, and deploying web applications on a remote machine.
-
-## Functionality
-
-The server will provide a RESTful API for managing clothing items and user interactions, including:
- User registration and authorization
- Clothing item management (create, read, update, delete)
- API endpoints for retrieving and manipulating data
+The WTWR API is a backend server designed to handle user authentication, clothing item management, and interactions between users and clothing items. The API provides endpoints for user registration, login, profile updates, clothing item creation, deletion, and liking/disliking items.
 
 ## Technologies and Techniques Used
 
-I've used the following technologies and techniques:
- Node.js as the server-side runtime environment
- Express.js as the web framework
- MongoDB as the NoSQL database management system
- Mongoose as the ODM (Object Data Modeling) library
- Nodemon for hot reload during development
+ Node.js
+ Express.js
+ MongoDB
+ Mongoose
+ ES6
+ CORS
+ Prettier
+ ESLint (airbnb-base configuration)
+ JSON Web Tokens (JWT) for authentication
 
-## Running the Project
+## API Endpoints
 
-To run the project, I use:
- `npm run start` — to launch the server
- `npm run dev` — to launch the server with the hot reload feature
+### User Routes
 
-## Testing with Postman
+ `POST /signin`: Log in a user
+ `POST /signup`: Create a new user
+ `GET /users/me`: Return the logged-in user data
+ `PATCH /users/me`: Update the user's profile
 
-To test the API endpoints, I use Postman to send HTTP requests to the server. Make sure to include the necessary headers, query parameters, and request bodies as specified in the API documentation. I've managed version control and collaboration using GitHub.
+### Clothing Item Routes
 
-Some example endpoints to test:
+ `GET /items`: Return all clothing items
+ `POST /items`: Create a new clothing item
+ `DELETE /items/:id`: Delete a clothing item by ID
+ `PUT /items/:id/likes`: Like a clothing item
+ `DELETE /items/:id/likes`: Unlike a clothing item
 
-- User registration: `POST /signup`
-- User login: `POST /signin`
-- Get all clothing items: `GET /items`
-- Create a new clothing item: `POST /items`
+## Features
 
-Before committing my code, I make sure to edit the `sprint.txt` file in the root folder to reflect the current sprint number, which is Sprint 12, the file contains the number `12`. This ensures that my project is properly tracked and version controlled.
+ User authentication using JSON Web Tokens (JWT)
+ Clothing item management (create, delete, like/unlike)
+ User profile updates
+ Error handling with corresponding status codes
+
+## Error Handling
+
+ 400: Invalid data or invalid ID
+ 401: Authorization error (incorrect email or password, invalid token)
+ 403: Forbidden (trying to remove another user's clothing item)
+ 404: Not found (user or clothing item not found)
+ 409: Conflict (email address already exists)
+ 500: Internal server error
+
+## Installation and Running
+
+1. Clone the repository
+2. Run `npm install` to install dependencies
+3. Run `npm run dev` to start the server with hot reload
+4. Run `npm run lint` to check for lint errors
+
+## API Documentation
+
+[Link:https://github.com/mellamsil/se_project_express.git ]
+
+## Notes
+
+ The API uses MongoDB as the database and connects to `mongodb://localhost:27017/wtwr_db` on startup.
+ The `user` and `clothingItem` models are defined using Mongoose and exported in their respective schema files.
+ The API uses Prettier for code formatting and ESLint for linting, with the airbnb-base configuration.
