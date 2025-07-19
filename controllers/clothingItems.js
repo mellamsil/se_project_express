@@ -102,11 +102,9 @@ const disLikeItem = (req, res) => {
 
 // DELETE /items
 const deleteItem = (req, res) => {
-  console.log(req.params);
   const { itemId } = req.params;
 
   ClothingItem.findById({ _id: itemId })
-    .orFail()
     .then((item) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
@@ -117,9 +115,9 @@ const deleteItem = (req, res) => {
           .send({ message: "That item is not yours. You cannot delete it" });
       }
       return ClothingItem.findByIdAndRemove({ _id: itemId })
-        .then(() => {
-          return res.status(OK).send({ message: "Item Successfully Deleted" });
-        })
+        .then(() =>
+          res.status(OK).send({ message: "Item Successfully Deleted" })
+        )
         .catch((err) => {
           console.error(err);
           return res
