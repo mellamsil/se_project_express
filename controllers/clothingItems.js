@@ -42,7 +42,7 @@ const createItem = (req, res) => {
 };
 
 // Like an item by ID
-const LikeItem = (req, res) => {
+const likeItem = (req, res) => {
   const userId = req.user._id;
   clothingItems
     .findByIdAndUpdate(
@@ -84,7 +84,7 @@ const disLikeItem = (req, res) => {
     })
 
     .catch((err) => {
-      if (err.name === "DocumenNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res
           .status(NOT_FOUND)
           .send({ message: "No item found with that ID" });
@@ -104,34 +104,37 @@ const disLikeItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItem.findById({ _id: itemId })
+  ClothingItem.findById(itemId)
     .then((item) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
+
       if (!item.owner.equals(req.user._id)) {
         return res
           .status(FORBIDDEN)
           .send({ message: "That item is not yours. You cannot delete it" });
       }
-      return ClothingItem.findByIdAndRemove({ _id: itemId })
-        .then(() =>
-          res.status(OK).send({ message: "Item Successfully Deleted" })
-        )
-        .catch((err) => {
-          console.error(err);
-          return res
-            .status(INTERNAL_SERVER_ERROR)
-            .send({ message: "An error has occurred on the server" });
-        });
+
+      return ClothingItem.deleteOne({ _id: itemId });
+    })
+    .then((deleteResult) => {
+      if (deleteResult.deletedCount === 0) {
+        return res
+          .status(NOT_FOUND)
+          .send({ message: "Item not found or already deleted" });
+      }
+      return res.status(OK).send({ message: "Item successfully deleted" });
     })
     .catch((err) => {
       console.error(err);
+
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST)
-          .send({ message: "Invalid Data. Failed to delete item" });
+          .send({ message: "Invalid item ID format" });
       }
+
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
@@ -142,6 +145,6 @@ module.exports = {
   createItem,
   getItems,
   deleteItem,
-  LikeItem,
+  likeItem,
   disLikeItem,
 };

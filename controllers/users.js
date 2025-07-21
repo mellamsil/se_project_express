@@ -111,13 +111,20 @@ const findUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  // Validate input
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+
   // Find the user by credentials
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user._id || !JWT_SECRET) {
         return res
           .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "Internal server error during token generation " });
+          .send({ message: "Internal server error during token generation" });
       }
 
       // Generate JWT
@@ -129,14 +136,15 @@ const login = (req, res) => {
       return res.status(OK).send({ token });
     })
     .catch((err) => {
-      if (err.name === "Incorrect email or password") {
+      if (err.message === "Incorrect email or password") {
         return res
           .status(UNAUTHORIZED)
           .send({ message: "Invalid email or password" });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({
-        message: `Internal server error during login`,
-      });
+
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "Internal server error during login" });
     });
 };
 
