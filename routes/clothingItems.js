@@ -18,12 +18,13 @@ router.post("/", createItem);
 router.get("/", getItems);
 
 // Delete an item
-router.delete("/:itemId", auth, deleteItem);
+router.delete("/:itemId", deleteItem);
 
 // Like an item
-router.put("/:itemId/likes", auth, likeItem);
+router.put("/:itemId/likes", likeItem);
 
 // Dislike (unlike) an item
-router.delete("/:itemId/likes", auth, disLikeItem);
+router.delete("/:itemId/likes", disLikeItem);
+router.use(auth);
 
 module.exports = router;
