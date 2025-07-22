@@ -116,15 +116,14 @@ const deleteItem = (req, res) => {
           .send({ message: "That item is not yours. You cannot delete it" });
       }
 
-      return ClothingItem.deleteOne({ _id: itemId });
-    })
-    .then((deleteResult) => {
-      if (deleteResult.deletedCount === 0) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: "Item not found or already deleted" });
-      }
-      return res.status(OK).send({ message: "Item successfully deleted" });
+      return ClothingItem.deleteOne({ _id: itemId }).then((deleteResult) => {
+        if (deleteResult.deletedCount === 0) {
+          return res
+            .status(NOT_FOUND)
+            .send({ message: "Item not found or already deleted" });
+        }
+        return res.status(OK).send({ message: "Item successfully deleted" });
+      });
     })
     .catch((err) => {
       console.error(err);

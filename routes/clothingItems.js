@@ -9,22 +9,16 @@ const {
   likeItem,
 } = require("../controllers/clothingItems");
 
-// CRUD
-
-// Create
-router.post("/", createItem);
-
-// Read
+// Public route to get all items
 router.get("/", getItems);
 
-// Delete an item
-router.delete("/:itemId", deleteItem);
-
-// Like an item
-router.put("/:itemId/likes", likeItem);
-
-// Dislike (unlike) an item
-router.delete("/:itemId/likes", disLikeItem);
+// Apply authentication middleware to all routes below
 router.use(auth);
+
+// Protected routes
+router.post("/", createItem); // Create
+router.delete("/:itemId", deleteItem); // Delete
+router.put("/:itemId/likes", likeItem); // Like
+router.delete("/:itemId/likes", disLikeItem); // Dislike
 
 module.exports = router;
