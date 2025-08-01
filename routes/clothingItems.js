@@ -21,8 +21,4 @@ router.delete("/:itemId", deleteItem); // Delete
 router.put("/:itemId/likes", likeItem); // Like
 router.delete("/:itemId/likes", disLikeItem); // Dislike
 
-// router.put("/:api/items/:id/likes"); //adds current user ID to the item's likes
-
-// router.DELETE("/:api/items/:id/likes"); //removes user ID from likes
-
 module.exports = router;

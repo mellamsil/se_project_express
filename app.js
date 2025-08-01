@@ -1,13 +1,8 @@
 const express = require("express");
 
 const app = express();
-// const itemsRouter = require("./routes/items");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
-// const userRoutes = require('./routes/users');
-// const itemRoutes = require('./routes/items');
-// const authMiddleware = require('./middleware/auth');
 
 const mainRouter = require("./routes/index");
 
@@ -22,18 +17,7 @@ mongoose
   .catch(console.error);
 
 app.use("/", mainRouter);
-// app.use("/items", itemsRouter);
-
-// app.use("/signup", userRoutes);
-// app.use("/signin", userRoutes);
-// app.use("/users", authMiddleware, userRoutes);
-// app.use("/items", itemRoutes);
-// app.use("*", (req, res) => {
-//   res.status(404).send("Not found");
-// });
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
 });
-
-module.exports = app;
