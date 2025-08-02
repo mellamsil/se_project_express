@@ -127,8 +127,9 @@ const login = (req, res) => {
           .send({ message: "Internal server error during token generation" });
       }
 
-      // Generate JWT
+      // Create a unique token associated with the user who has logged in
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        //1j98jf812f81j2f812jf81j2f81j2f81jf2891jf81jf981j2f891jf812
         expiresIn: "7d",
       });
 
