@@ -6,6 +6,9 @@ const { NOT_FOUND } = require("../utils/errors");
 
 router.post("/signin", login);
 router.post("/signup", createUser);
+// router.post("/signup", (req, res) => {
+//   const { name, email, password } = req.body;
+// });
 
 router.use("/items", clothingItem);
 router.use("/users", userRouter);
