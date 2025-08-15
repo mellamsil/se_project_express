@@ -1,19 +1,22 @@
 const router = require("express").Router();
+const clothingItemRouter = require("./clothingItems");
 const clothingItem = require("./clothingItems");
 const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
 const { NOT_FOUND } = require("../utils/errors");
 
+// Public routes
 router.post("/signin", login);
 router.post("/signup", createUser);
-// router.post("/signup", (req, res) => {
-//   const { name, email, password } = req.body;
-// });
 
+// Item routes (requires authentication in clothingItems router)
 router.use("/items", clothingItem);
+router.use("/items", clothingItemRouter);
+
+// User routes
 router.use("/users", userRouter);
 
-// 404 fallback
+// Catch-all for unknown routes
 router.use((req, res) => {
   res.status(NOT_FOUND).send({ message: "Router not found" });
 });
