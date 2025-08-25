@@ -12,12 +12,10 @@ const clothingItems = require("../models/clothingItems");
 // GET /items
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(OK).send(items))
+    .then((items) => res.status(200).send(items))
     .catch((err) => {
       console.error(err);
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      res.status(500).send({ message: "An error has occurred on the server" });
     });
 };
 
