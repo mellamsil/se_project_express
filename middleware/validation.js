@@ -111,4 +111,5 @@ module.exports = {
   validateUserBody,
   validateLogin,
   validateIdParam,
+  validateAuthHeader,
 };

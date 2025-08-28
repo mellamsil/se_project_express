@@ -18,7 +18,7 @@ router.use("/users", userRouter);
 
 // Catch-all for unknown routes
 router.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: "Router not found" });
+  res.status(404).send({ message: "Router not found" });
 });
 
 module.exports = router;
