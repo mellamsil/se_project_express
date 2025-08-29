@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
+
+/* eslint-disable no-unused-vars */
 const {
   BadRequestError,
   UnauthorizedError,
@@ -13,6 +15,7 @@ const {
   ForbiddenError,
   ConflictError,
 } = require("../utils/errors");
+/* eslint-enable no-unused-vars */
 
 // Get current user
 const getCurrentUser = (req, res, next) => {

@@ -1,4 +1,6 @@
 const ClothingItem = require("../models/clothingItems");
+
+/* eslint-disable no-unused-vars */
 const {
   BadRequestError,
   UnauthorizedError,
@@ -10,6 +12,8 @@ const {
   ForbiddenError,
   ConflictError,
 } = require("../utils/errors");
+/* eslint-enable no-unused-vars */
+
 const clothingItems = require("../models/clothingItems");
 
 // GET /items
@@ -43,7 +47,7 @@ const createItem = (req, res) => {
 };
 
 // Like an item by ID
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const userId = req.user._id;
   clothingItems
     .findByIdAndUpdate(
