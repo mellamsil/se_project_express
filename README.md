@@ -65,3 +65,9 @@ Screenshots of the project in action (frontend + backend interaction):
 - CORS configured correctly.
 - Code consistently formatted with Prettier.
 - Fully deployed & production-ready.
+
+## Repository
+
+You can view the code for this project here:  
+[Frontend GitHub Repo](https://github.com/mellamsil/se_project_react.git)  
+[Backend GitHub Repo](https://github.com/mellamsil/se_project_express.git)
