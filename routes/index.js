@@ -1,16 +1,15 @@
 const router = require("express").Router();
 const clothingItemRouter = require("./clothingItems");
-const clothingItem = require("./clothingItems");
 const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
-const { NOT_FOUND } = require("../utils/errors");
+
+const { validateLogin, validateUserBody } = require("../middleware/validation");
 
 // Public routes
-router.post("/signin", login);
-router.post("/signup", createUser);
+router.post("/signin", validateLogin, login);
+router.post("/signup", validateUserBody, createUser);
 
 // Item routes (requires authentication in clothingItems router)
-router.use("/items", clothingItem);
 router.use("/items", clothingItemRouter);
 
 // User routes

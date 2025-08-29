@@ -21,10 +21,6 @@ const requestLogger = expressWinston.logger({
       format: winston.format.json(),
     }),
   ],
-  //   meta: true, // include metadata about the request
-  //   msg: "HTTP {{req.method}} {{req.url}}", // customizable message
-  //   expressFormat: true, // use Express-style formatting
-  //   colorize: false,
 });
 
 // Error logger
@@ -32,18 +28,6 @@ const errorLogger = expressWinston.errorLogger({
   transports: [new winston.transports.File({ filename: "error.log" })],
   format: winston.format.json(),
 });
-// const errorLogger = expressWinston.errorLogger({
-//   transports: [
-//     new winston.transports.Console({
-//       format: messageFormat,
-//     }),
-//     new winston.transports.File({
-//       filename: "error.log",
-//       format: winston.format.json(),
-//     }),
-//   ],
-//   meta: true, // include metadata about the error
-// });
 
 module.exports = {
   requestLogger,

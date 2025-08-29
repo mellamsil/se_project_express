@@ -9,16 +9,21 @@ const {
   likeItem,
 } = require("../controllers/clothingItems");
 
+const {
+  validateCardBody,
+  validateIdParam,
+} = require("../middleware/validation");
+
 // Public route to get all items
 router.get("/", getItems);
 
 // Apply authentication middleware to all routes below
 router.use(auth);
 
-// Protected routes
-router.post("/", createItem); // Create
-router.delete("/:itemId", deleteItem); // Delete
-router.put("/:itemId/likes", likeItem); // Like
-router.delete("/:itemId/likes", disLikeItem); // Dislike
+// Protected routes with validation
+router.post("/", validateCardBody, createItem); // Create item
+router.delete("/:itemId", validateIdParam, deleteItem); // Delete by ID
+router.put("/:itemId/likes", validateIdParam, likeItem); // Like item by ID
+router.delete("/:itemId/likes", validateIdParam, disLikeItem); // Dislike item by ID
 
 module.exports = router;

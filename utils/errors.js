@@ -1,15 +1,3 @@
-// const {
-//   BadRequestError,
-//   UnauthorizedError,
-//   NotFoundError,
-//   InternalServerError,
-//   OkError,
-//   CreatedError,
-//   NoContentError,
-//   ForbiddenError,
-//   ConflictError,
-// } = require("../utils/errors");
-
 class BadRequestError extends Error {
   constructor(message) {
     super(message);

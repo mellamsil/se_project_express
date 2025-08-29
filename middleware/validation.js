@@ -1,9 +1,9 @@
-const { Joi, celebrate, Segments } = require("celebrate");
+const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
 
 // URL validator
 const validateURL = (value, helpers) => {
-  if (validator.isURL(value)) {
+  if (validator.isURL(value, { require_protocol: true, require_tld: false })) {
     return value;
   }
   return helpers.error("string.uri");
@@ -14,7 +14,7 @@ const validateObjectId = (value, helpers) => {
   if (/^[0-9a-fA-F]{24}$/.test(value)) {
     return value;
   }
-  return helpers.message("Invalid ID format");
+  return helpers.error("any.custom"); // consistent with Joi custom messages
 };
 
 // 1. Clothing item creation
@@ -28,7 +28,7 @@ const validateCardBody = celebrate({
 
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
-      "string.uri": 'the "imageUrl" field must be a valid url',
+      "string.uri": 'The "imageUrl" field must be a valid URL',
     }),
   }),
 });
@@ -48,8 +48,9 @@ const validateUserBody = celebrate({
       "string.empty": 'The "email" field must be filled in',
       "string.email": 'The "email" field must be a valid email address',
     }),
-    password: Joi.string().required().messages({
+    password: Joi.string().required().min(8).messages({
       "string.empty": 'The "password" field must be filled in',
+      "string.min": 'The "password" must be at least 8 characters long',
     }),
   }),
 });
@@ -69,7 +70,7 @@ const validateLogin = celebrate({
 
 // 4. ID validation for users or items
 const validateIdParam = celebrate({
-  PARAMS: Joi.object().keys({
+  params: Joi.object().keys({
     id: Joi.string().required().custom(validateObjectId).messages({
       "string.empty": 'The "id" parameter must be filled in',
       "any.custom":
@@ -80,7 +81,7 @@ const validateIdParam = celebrate({
 
 // 5. Query validation (optional, for pagination)
 const validateQuery = celebrate({
-  [Segments.QUERY]: Joi.object().keys({
+  query: Joi.object().keys({
     page: Joi.number().integer().min(1).messages({
       "number.base": 'The "page" query must be a number',
       "number.min": 'The "page" query must be at least 1',
@@ -95,7 +96,7 @@ const validateQuery = celebrate({
 
 // 6. Auth header validation
 const validateAuthHeader = celebrate({
-  [Segments.HEADERS]: Joi.object({
+  headers: Joi.object({
     authorization: Joi.string().required().messages({
       "string.empty": "Authorization header is required",
     }),
@@ -103,13 +104,10 @@ const validateAuthHeader = celebrate({
 });
 
 module.exports = {
-  createItemValidation,
-  createUserValidation,
-  loginValidation,
-  idValidation,
   validateCardBody,
   validateUserBody,
   validateLogin,
   validateIdParam,
+  validateQuery,
   validateAuthHeader,
 };
