@@ -4,6 +4,7 @@ const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
 
 const { validateLogin, validateUserBody } = require("../middleware/validation");
+const { NotFoundError } = require("../utils/errors"); // <-- import error class
 
 // Public routes
 router.post("/signin", validateLogin, login);
@@ -16,8 +17,8 @@ router.use("/items", clothingItemRouter);
 router.use("/users", userRouter);
 
 // Catch-all for unknown routes
-router.use((req, res) => {
-  res.status(404).send({ message: "Router not found" });
+router.use((req, res, next) => {
+  next(new NotFoundError("Route not found")); // <-- pass error to central handler
 });
 
 module.exports = router;

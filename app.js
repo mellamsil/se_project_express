@@ -29,7 +29,7 @@ app.use("/", mainRouter);
 app.use(errorLogger); // enabling the error logger
 
 app.use(errors()); // celebrate error handler
-app.use(errorHandler); //centralized error handler
+app.use(errorHandler); // centralized error handler
 
 // Start server
 app.listen(PORT, () => {

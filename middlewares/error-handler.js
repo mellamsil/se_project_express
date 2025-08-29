@@ -1,4 +1,3 @@
-// Centralized error handler
 function errorHandler(err, req, res, next) {
   // Log the error stack (better than just err for debugging)
   console.error(err.stack || err);

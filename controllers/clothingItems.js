@@ -1,21 +1,24 @@
 const ClothingItem = require("../models/clothingItems");
 const {
-  INTERNAL_SERVER_ERROR,
-  BAD_REQUEST,
-  NOT_FOUND,
-  OK,
-  CREATED,
-  FORBIDDEN,
+  BadRequestError,
+  UnauthorizedError,
+  NotFoundError,
+  InternalServerError,
+  OkError,
+  CreatedError,
+  NoContentError,
+  ForbiddenError,
+  ConflictError,
 } = require("../utils/errors");
 const clothingItems = require("../models/clothingItems");
 
 // GET /items
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       console.error(err);
-      res.status(500).send({ message: "An error has occurred on the server" });
+      next(new InternalServerError("An error has occurred on the server"));
     });
 };
 
