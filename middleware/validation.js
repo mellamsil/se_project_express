@@ -26,6 +26,11 @@ const validateCardBody = celebrate({
       "string.empty": 'The "name" field must be filled in',
     }),
 
+    weather: Joi.string().valid("hot", "warm", "cold").required().messages({
+      "any.only": 'The "weather" field must be one of: hot, warm, cold',
+      "string.empty": 'The "weather" field must be filled in',
+    }),
+
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'The "imageUrl" field must be a valid URL',
@@ -71,10 +76,10 @@ const validateLogin = celebrate({
 // 4. ID validation for users or items
 const validateIdParam = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().custom(validateObjectId).messages({
-      "string.empty": 'The "id" parameter must be filled in',
+    itemId: Joi.string().required().custom(validateObjectId).messages({
+      "string.empty": 'The "itemId" parameter must be filled in',
       "any.custom":
-        'The "id" parameter must be a valid 24-character hexadecimal',
+        'The "itemId" parameter must be a valid 24-character hexadecimal',
     }),
   }),
 });

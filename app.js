@@ -7,6 +7,7 @@ require("dotenv").config();
 const mainRouter = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/error-handler");
+const { NotFoundError } = require("./utils/errors");
 
 const { PORT = 3001 } = process.env;
 
@@ -30,6 +31,11 @@ app.use(errorLogger); // enabling the error logger
 
 app.use(errors()); // celebrate error handler
 app.use(errorHandler); // centralized error handler
+
+// handle 404 errors
+app.use((req, res, next) => {
+  next(new NotFoundError("Requested resource not found"));
+});
 
 // Start server
 app.listen(PORT, () => {
