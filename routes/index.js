@@ -24,7 +24,25 @@ router.get("/crash-test", () => {
 
 // Catch-all for unknown routes
 router.use((req, res, next) => {
-  next(new NotFoundError("Route not found")); // <-- pass error to central handler
+  const forbiddenPaths = [
+    ".env",
+    ".env.save",
+    ".env.prod",
+    "phpinfo.php",
+    "php_info.php",
+    "_profiler/phpinfo",
+  ];
+
+  // Block requests to sensitive files
+  if (forbiddenPaths.some((path) => req.path.includes(path))) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  // Log the unknown route for debugging
+  console.warn(`Unknown route requested: ${req.method} ${req.originalUrl}`);
+
+  // Forward a 404 error to central error handler
+  next(new NotFoundError("Route not found"));
 });
 
 module.exports = router;
