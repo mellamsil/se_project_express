@@ -20,10 +20,23 @@ router.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
   }, 0);
+  return undefined;
+});
+
+// Crash-test route
+router.get("/crash-test", (req, res) => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+  // Return a response immediately to satisfy consistent-return
+  return res.send("Server will crash shortly");
 });
 
 // Catch-all for unknown routes
 router.use((req, res, next) => {
+  // eslint-disable-next-line no-console
+  console.log("Request to unknown route");
+
   const forbiddenPaths = [
     ".env",
     ".env.save",
@@ -38,11 +51,11 @@ router.use((req, res, next) => {
     return res.status(403).json({ message: "Access denied" });
   }
 
-  // Log the unknown route for debugging
+  // eslint-disable-next-line no-console
   console.warn(`Unknown route requested: ${req.method} ${req.originalUrl}`);
 
   // Forward a 404 error to central error handler
-  next(new NotFoundError("Route not found"));
+  return next(new NotFoundError("Route not found"));
 });
 
 module.exports = router;
