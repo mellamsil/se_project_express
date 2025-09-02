@@ -16,7 +16,8 @@ router.use("/items", clothingItemRouter);
 // User routes
 router.use("/users", userRouter);
 
-router.get("/crash-test", () => {
+router.get("/crash-test", (req, res) => {
+  res.send("Server will crash shortly...");
   setTimeout(() => {
     throw new Error("Server will crash now");
   }, 0);
