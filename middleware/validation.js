@@ -73,7 +73,22 @@ const validateLogin = celebrate({
   }),
 });
 
-// 4. ID validation for users or items
+// 4. Update profile (PATCH /users/me → name + avatar only)
+const validateUpdateProfile = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).required().messages({
+      "string.empty": 'The "name" field must be filled in',
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+    }),
+    avatar: Joi.string().required().custom(validateURL).messages({
+      "string.empty": 'The "avatar" field must be filled in',
+      "string.uri": 'The "avatar" field must be a valid URL',
+    }),
+  }),
+});
+
+// 5. ID validation for users or items
 const validateIdParam = celebrate({
   params: Joi.object().keys({
     itemId: Joi.string().required().custom(validateObjectId).messages({
@@ -84,7 +99,7 @@ const validateIdParam = celebrate({
   }),
 });
 
-// 5. Query validation (optional, for pagination)
+// 6. Query validation (optional, for pagination)
 const validateQuery = celebrate({
   query: Joi.object().keys({
     page: Joi.number().integer().min(1).messages({
@@ -99,7 +114,7 @@ const validateQuery = celebrate({
   }),
 });
 
-// 6. Auth header validation
+// 7. Auth header validation
 const validateAuthHeader = celebrate({
   headers: Joi.object({
     authorization: Joi.string().required().messages({
@@ -112,6 +127,7 @@ module.exports = {
   validateCardBody,
   validateUserBody,
   validateLogin,
+  validateUpdateProfile,
   validateIdParam,
   validateQuery,
   validateAuthHeader,

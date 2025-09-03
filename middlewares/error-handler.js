@@ -12,7 +12,7 @@ function errorHandler(err, req, res, next) {
   const message = statusCode === 500 ? "Internal Server Error" : err.message;
 
   // Send JSON response
-  res.status(statusCode).json({ error: message });
+  return res.status(statusCode).json({ message });
 }
 
 module.exports = errorHandler;
