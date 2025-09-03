@@ -13,16 +13,16 @@ const { PORT = 3001 } = process.env;
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-
 app.use(requestLogger); // Log all requests
 
 // Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => requestLogger.info("MongoDB connected"))
-  .catch((error) => requestLogger.error("MongoDB connection error:", error));
+  .then(() => console.log("MongoDB connected"))
+  .catch((error) => console.error("MongoDB connection error:", error));
 
 // Routes
 app.use("/", mainRouter);
@@ -32,10 +32,13 @@ app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
 
+// Error logging middleware
 app.use(errorLogger); // Log errors
 
 app.use(errors()); // Celebrate validation errors
 app.use(errorHandler); // Centralized error handler
 
 // Start server
-app.listen(PORT, () => requestLogger.info(`App listening at port ${PORT}`));
+app.listen(PORT, () => console.log(`App listening at port ${PORT}`));
+
+module.exports = app;
